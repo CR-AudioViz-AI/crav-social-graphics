@@ -356,41 +356,35 @@ async function removeBackground(imageBase64: string): Promise<{ image: string }>
 // CREDIT CHECK & DEDUCTION
 // ============================================================================
 
+// 2026-08-04: THIS CHARGED AGAINST THE WRONG TABLE ENTIRELY.
+//
+// It read and wrote public.credits — a two-row table that was RETIRED in the
+// core platform in August when four competing balance stores were collapsed
+// into one. A customer generating an image here was checked against a table
+// almost nobody is in, so they were told "Insufficient credits" while their
+// real balance sat untouched in user_credits. The two people who ARE in that
+// table were being charged twice over: once here, once in the real ledger.
+//
+// It was also a read-modify-write with no lock, wrote the ledger row separately
+// from the balance change, never updated the profiles mirror, and ignored the
+// granted-before-purchased spend order.
+//
+// cl_spend_direct does all of it in one atomic statement against the one true
+// balance. It is the same function the core platform uses, so this app can no
+// longer drift from it.
 async function checkAndDeductCredits(userId: string, cost: number): Promise<boolean> {
-  // Get current balance
-  const { data: balance } = await supabase
-    .from('credits')
-    .select('balance')
-    .eq('user_id', userId)
-    .single();
+  const { data, error } = await supabase.rpc('cl_spend_direct', {
+    p_user: userId,
+    p_amount: cost,
+    p_reason: 'javari-social: AI image generation',
+  });
 
-  const currentBalance = balance?.balance || 0;
-  
-  if (currentBalance < cost) {
+  if (error) {
+    console.error('[ai-generate] credit spend failed:', error.message);
     return false;
   }
-
-  // Deduct credits
-  await supabase
-    .from('credits')
-    .update({ 
-      balance: currentBalance - cost,
-      updated_at: new Date().toISOString()
-    })
-    .eq('user_id', userId);
-
-  // Log transaction
-  await supabase
-    .from('credit_transactions')
-    .insert({
-      user_id: userId,
-      amount: -cost,
-      type: 'debit',
-      description: 'AI Image Generation',
-      created_at: new Date().toISOString()
-    });
-
-  return true;
+  const res = data as { ok?: boolean } | null;
+  return res?.ok === true;
 }
 
 // ============================================================================

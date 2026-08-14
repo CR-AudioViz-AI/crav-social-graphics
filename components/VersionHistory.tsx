@@ -180,7 +180,7 @@ export default function VersionHistory({ designId, onRestoreVersion, onPreviewVe
 
   const copyVersionLink = () => {
     if (selectedVersion) {
-      navigator.clipboard.writeText(`https://crav-social-graphics.vercel.app/design/${designId}/v/${selectedVersion.versionNumber}`)
+      navigator.clipboard.writeText(`https://craudiovizai.com/apps/social-graphics/design/${designId}/v/${selectedVersion.versionNumber}`)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     }

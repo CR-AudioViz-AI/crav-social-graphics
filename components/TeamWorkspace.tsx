@@ -151,7 +151,7 @@ export default function TeamWorkspace({ onClose, onSelectFolder }: TeamWorkspace
   }
 
   const copyInviteLink = () => {
-    navigator.clipboard.writeText('https://crav-social-graphics.vercel.app/invite/abc123')
+    navigator.clipboard.writeText('https://craudiovizai.com/apps/social-graphics/invite/abc123')
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -375,7 +375,7 @@ export default function TeamWorkspace({ onClose, onSelectFolder }: TeamWorkspace
               <div className="flex gap-2">
                 <input
                   type="text"
-                  value="https://crav-social-graphics.vercel.app/invite/abc123"
+                  value="https://craudiovizai.com/apps/social-graphics/invite/abc123"
                   readOnly
                   className="flex-1 px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-gray-400 text-sm"
                 />

@@ -36,8 +36,17 @@ export async function GET() {
         auth: { persistSession: false },
         global: { fetch: (u, o) => fetch(u, { ...o, cache: "no-store" }) },
       })
-      const { error } = await db.from("profiles").select("id", { count: "exact", head: true })
-      checks.database_reachable = !error
+      // 2026-08-19: this probed `profiles`, which RLS correctly DENIES to the anon
+      // role - so the check reported the database unreachable when it was simply
+      // doing its job. A health check must probe something this app is actually
+      // allowed to read, or it reports its own misconfiguration as an outage.
+      // 2026-08-19: javari-social has NO anon-readable table - every table it uses
+      // is behind RLS - so probing one would report a correctly-enforced denial as
+      // an outage. This verifies the CONNECTION instead: PostgREST answering at
+      // all, even with a permission error, proves the database is reachable and
+      // the key is valid. Only a network or auth failure leaves data null.
+      const { error } = await db.from("designs").select("id", { head: true })
+      checks.database_reachable = !error || error.code === "42501" || error.code === "PGRST301"
     } catch {
       checks.database_reachable = false
     }

@@ -9,10 +9,11 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { secretKey, supabaseUrl } from "@craudioviz/platform-sdk";
 
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  supabaseUrl(),
+  secretKey()
 );
 
 // ============================================================================
@@ -382,7 +383,7 @@ async function handleLogoUpload(request: NextRequest, userId: string, body: any)
 
   if (uploadError) throw uploadError;
 
-  const logoUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/graphics/${fileName}`;
+  const logoUrl = `${supabaseUrl()}/storage/v1/object/public/graphics/${fileName}`;
 
   // Update brand kit
   const updateField = `logo_${logo_type}_url`;

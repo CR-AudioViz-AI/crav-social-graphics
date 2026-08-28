@@ -18,9 +18,10 @@
 // javari-social gets the reservations, the re-entrancy guards, the ceilings and
 // the reconciliation for free, and can never drift from them again.
 import { createClient } from '@supabase/supabase-js';
+import { secretKey, supabaseUrl } from "@craudioviz/platform-sdk";
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://kteobfyferrukqeolofj.supabase.co';
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_URL = supabaseUrl();
+const SUPABASE_SERVICE_KEY = secretKey();
 
 const supabaseAdmin = SUPABASE_SERVICE_KEY
   ? createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, { auth: { persistSession: false } })

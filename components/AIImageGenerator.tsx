@@ -23,7 +23,15 @@ import {
 } from 'lucide-react';
 
 interface AIImageGeneratorProps {
-  onImageGenerated: (imageUrl: string) => void;
+  // 2026-08-29: the callback is OPTIONAL. app/page.tsx renders this component with
+// no props at all, so the prop was required and never supplied — TS2741 on every
+// render, invisible until this repo got a typecheck.
+//
+// Optional rather than given a no-op handler in the page. This component RENDERS
+// ITS OWN RESULT, so it works standalone; the callback is a notification for a
+// parent that wants to react, not the display path. A no-op would have silenced
+// the compiler while implying a parent was listening when none is.
+  onImageGenerated?: (imageUrl: string) => void;
   currentPlatform?: string;
   authToken?: string;
 }
@@ -200,7 +208,7 @@ export default function AIImageGenerator({
 
   function handleAddToCanvas() {
     if (generatedImage) {
-      onImageGenerated(generatedImage);
+      onImageGenerated?.(generatedImage);
     }
   }
 

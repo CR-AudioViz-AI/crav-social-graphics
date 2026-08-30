@@ -9,7 +9,15 @@ import {
 } from 'lucide-react'
 
 interface AICaptionGeneratorProps {
-  onCaptionSelect: (caption: string, hashtags: string[]) => void
+  // 2026-08-29: the callback is OPTIONAL. app/page.tsx renders this component with
+// no props at all, so the prop was required and never supplied — TS2741 on every
+// render, invisible until this repo got a typecheck.
+//
+// Optional rather than given a no-op handler in the page. This component RENDERS
+// ITS OWN RESULT, so it works standalone; the callback is a notification for a
+// parent that wants to react, not the display path. A no-op would have silenced
+// the compiler while implying a parent was listening when none is.
+  onCaptionSelect?: (caption: string, hashtags: string[]) => void
   platform?: string
   context?: string
 }
@@ -315,7 +323,7 @@ export default function AICaptionGenerator({ onCaptionSelect, platform = 'instag
                     )}
                   </button>
                   <button
-                    onClick={() => onCaptionSelect(item.caption, item.hashtags)}
+                    onClick={() => onCaptionSelect?.(item.caption, item.hashtags)}
                     className="flex items-center gap-1 px-3 py-1.5 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700"
                   >
                     <ThumbsUp className="w-4 h-4" />

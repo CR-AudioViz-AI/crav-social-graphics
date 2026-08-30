@@ -96,12 +96,22 @@ export function BrandedHeader({ appName, appLogo, quickLinks = [] }: BrandedHead
 
         {/* Right Side - Auth & Theme */}
         <div className="flex items-center gap-4">
-          {isLoggedIn && <CreditsBar credits={credits} plan={plan} />}
+          {/* 2026-08-29: isLoggedIn passed explicitly. CreditsBar requires it and
+              returns null when false — its own guard. Rendering it inside an
+              `isLoggedIn &&` while omitting the prop meant the component could
+              never satisfy its own contract, and TS2741 said so. */}
+          {isLoggedIn && <CreditsBar isLoggedIn={isLoggedIn} credits={credits} plan={plan} />}
           <ThemeToggle />
-          <AuthButtons 
-            isLoggedIn={isLoggedIn} 
-            user={user} 
-            onLogout={handleLogout} 
+          {/* 2026-08-29: AuthButtons takes userName and userEmail as SEPARATE
+              STRINGS — there is no `user` prop on AuthButtonsProps, so this passed
+              an object the component never read and the name never rendered.
+              Identical to the shape defect fixed in platform-sdk today, surviving
+              here because this repo had no typecheck. */}
+          <AuthButtons
+            isLoggedIn={isLoggedIn}
+            userName={user?.name}
+            userEmail={user?.email}
+            onLogout={handleLogout}
           />
           
           {/* Mobile Menu Button */}

@@ -482,7 +482,23 @@ async function rateTemplate(userId: string, body: any) {
     .select('rating')
     .eq('template_id', template_id);
 
-  const avgRating = ratings?.reduce((sum, r) => sum + r.rating, 0) / (ratings?.length || 1);
+  // 2026-08-29: this was
+  //   ratings?.reduce(...) / (ratings?.length || 1)
+  // and the optional chain is the bug. When the query fails or returns nothing,
+  // reduce is never called, the left side is `undefined`, and `undefined / 1` is
+  // NaN — which was then rounded and WRITTEN TO THE DATABASE as the template's
+  // rating. A failed read became a corrupted rating rather than a skipped update.
+  //
+  // TS2532 flagged it as 'possibly undefined'. It was invisible until this repo got
+  // a typecheck.
+  const rows = ratings ?? [];
+  if (rows.length === 0) {
+    // No ratings and a failed read look identical here, so do NOT write. Leaving
+    // the existing rating untouched is honest; overwriting it with 0 is not.
+    console.warn('[marketplace] no ratings returned for template', template_id);
+    return NextResponse.json({ ok: true, skipped: 'no ratings to average' });
+  }
+  const avgRating = rows.reduce((sum, r) => sum + r.rating, 0) / rows.length;
 
   await supabase
     .from('marketplace_templates')

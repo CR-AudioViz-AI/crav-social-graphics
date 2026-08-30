@@ -61,7 +61,15 @@ const DEFAULT_KIT: Omit<BrandKit, 'id'> = {
 }
 
 interface BrandKitManagerProps {
-  onSelectKit: (kit: BrandKit) => void
+  // 2026-08-29: the callback is OPTIONAL. app/page.tsx renders this component with
+// no props at all, so the prop was required and never supplied — TS2741 on every
+// render, invisible until this repo got a typecheck.
+//
+// Optional rather than given a no-op handler in the page. This component RENDERS
+// ITS OWN RESULT, so it works standalone; the callback is a notification for a
+// parent that wants to react, not the display path. A no-op would have silenced
+// the compiler while implying a parent was listening when none is.
+  onSelectKit?: (kit: BrandKit) => void
   selectedKitId?: string
 }
 
@@ -388,7 +396,7 @@ export default function BrandKitManager({ onSelectKit, selectedKitId }: BrandKit
           {brandKits.map(kit => (
             <div
               key={kit.id}
-              onClick={() => onSelectKit(kit)}
+              onClick={() => onSelectKit?.(kit)}
               className={`p-4 border rounded-xl cursor-pointer transition-all ${
                 selectedKitId === kit.id
                   ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20'

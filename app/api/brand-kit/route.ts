@@ -141,7 +141,7 @@ export async function GET(request: NextRequest) {
 
   } catch (error: any) {
     console.error('Error fetching brand kits:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'The request could not be completed.', code: 'INTERNAL_ERROR' }, { status: 500 });
   }
 }
 
@@ -242,7 +242,7 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error('Error creating brand kit:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'The request could not be completed.', code: 'INTERNAL_ERROR' }, { status: 500 });
   }
 }
 
@@ -299,7 +299,7 @@ export async function PATCH(request: NextRequest) {
 
   } catch (error: any) {
     console.error('Error updating brand kit:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'The request could not be completed.', code: 'INTERNAL_ERROR' }, { status: 500 });
   }
 }
 
@@ -343,7 +343,7 @@ export async function DELETE(request: NextRequest) {
 
   } catch (error: any) {
     console.error('Error deleting brand kit:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'The request could not be completed.', code: 'INTERNAL_ERROR' }, { status: 500 });
   }
 }
 
